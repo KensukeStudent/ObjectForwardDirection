@@ -20,10 +20,10 @@ public class SceneManager : MonoBehaviour
     private float angle;
 
     [SerializeField]
-    private GameObject obj = null;
+    private GameObject target = null;
 
     [SerializeField]
-    private GameObject target = null;
+    private GameObject self = null;
 
     [SerializeField]
     private SearchType searchType;
@@ -33,7 +33,23 @@ public class SceneManager : MonoBehaviour
     {
         SetMousePosition();
         CalcTargetDirection();
-        SearchNormal();
+
+        if (angle >= -45 && angle < 45)
+        {
+            Debug.Log("正面");
+        }
+        else if (angle >= -135 && angle < -45)
+        {
+            Debug.Log("左");
+        }
+        else if (angle >= 45 && angle < 135)
+        {
+            Debug.Log("右");
+        }
+        else
+        {
+            Debug.Log("後ろ");
+        }
     }
 
     private void SetMousePosition()
@@ -46,56 +62,17 @@ public class SceneManager : MonoBehaviour
         screenToWorldPointPosition = Camera.main.ScreenToWorldPoint(position);
         screenToWorldPointPosition.y = 0;
         // ワールド座標に変換されたマウス座標を代入
-        obj.transform.position = screenToWorldPointPosition;
+        target.transform.position = screenToWorldPointPosition;
     }
 
     private void CalcTargetDirection()
     {
-        var targetPos = target.transform.position;
-        var objPos = obj.transform.position;
+        var diff = target.transform.position - self.transform.position;
+        var forward = searchType == SearchType.Normal ? Vector3.forward : self.transform.forward;
 
-        targetPos.y = 0;
-        objPos.y = 0;
-
-        Vector3 direction = targetPos - objPos;
-        angle = Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg + 180;
-    }
-
-    private void SwitchSearchMode()
-    {
-        switch (searchType)
-        {
-            case SearchType.Normal:
-                SearchNormal();
-                break;
-            case SearchType.Forward:
-                SeachForward();
-                break;
-        }
-    }
-
-    private void SearchNormal()
-    {
-        if (angle >= 45 && angle < 135)
-        {
-            Debug.Log("正面");
-        }
-        else if (angle >= 135 && angle < 225)
-        {
-            Debug.Log("左");
-        }
-        else if (angle >= 225 && angle < 315)
-        {
-            Debug.Log("後ろ");
-        }
-        else
-        {
-            Debug.Log("右");
-        }
-    }
-
-    private void SeachForward()
-    {
-
+        // 外積からベクトルの左右を求める
+        var axis = Vector3.Cross(forward, diff);
+        // マイナスであれば左、プラスであれば右
+        angle = Vector3.Angle(forward, diff) * (axis.y < 0 ? -1 : 1);
     }
 }
