@@ -1,4 +1,11 @@
+// --------------------------------------------------------------------
+// reference: https://tsubakit1.hateblo.jp/entry/2018/02/05/235634
+// --------------------------------------------------------------------
+
+using System.Text;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum SearchType
 {
@@ -28,28 +35,19 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     private SearchType searchType;
 
+    [SerializeField]
+    private TextMeshProUGUI text = null;
+
+    [SerializeField]
+    private bool isRotate = false;
+
     // Update is called once per frame
     void Update()
     {
         SetMousePosition();
+        RotateSelf();
         CalcTargetDirection();
-
-        if (angle >= -45 && angle < 45)
-        {
-            Debug.Log("正面");
-        }
-        else if (angle >= -135 && angle < -45)
-        {
-            Debug.Log("左");
-        }
-        else if (angle >= 45 && angle < 135)
-        {
-            Debug.Log("右");
-        }
-        else
-        {
-            Debug.Log("後ろ");
-        }
+        SetText();
     }
 
     private void SetMousePosition()
@@ -74,5 +72,45 @@ public class SceneManager : MonoBehaviour
         var axis = Vector3.Cross(forward, diff);
         // マイナスであれば左、プラスであれば右
         angle = Vector3.Angle(forward, diff) * (axis.y < 0 ? -1 : 1);
+    }
+
+    private void RotateSelf()
+    {
+        if (isRotate)
+        {
+            self.transform.Rotate(0, 30 * Time.deltaTime, 0);
+        }
+    }
+
+    private void SetText()
+    {
+        StringBuilder builder = new StringBuilder();
+
+        if (angle >= -45 && angle < 45)
+        {
+            builder.Append("Forward");
+        }
+        else if (angle >= -135 && angle < -45)
+        {
+            builder.Append("Left");
+        }
+        else if (angle >= 45 && angle < 135)
+        {
+            builder.Append("Right");
+        }
+        else
+        {
+            builder.Append("Back");
+        }
+
+        builder.AppendLine();
+        builder.Append($@"Angle: {angle}");
+        builder.Append(@"
+        -45 - 45: Forward
+        -135 - 45: Left
+        45 - 135: Right
+        else: Back");
+
+        text.text = builder.ToString();
     }
 }
