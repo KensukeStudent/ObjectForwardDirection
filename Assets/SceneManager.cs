@@ -5,7 +5,6 @@
 using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public enum SearchType
 {
