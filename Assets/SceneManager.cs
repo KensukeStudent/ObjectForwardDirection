@@ -32,14 +32,17 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     private GameObject self = null;
 
-    [SerializeField]
+    [Header("Normal,Forward=targetマウス移動\nInput=targetをスティック入力移動"), SerializeField]
     private SearchType searchType;
 
     [SerializeField]
     private TextMeshProUGUI text = null;
 
-    [SerializeField]
+    [Header("selfを回転させる"), SerializeField]
     private bool isRotate = false;
+
+    [Header("入力をカメラy軸回転を基準とするか"), SerializeField]
+    private bool inputForCamera = false;
 
     // Update is called once per frame
     void Update()
@@ -134,8 +137,18 @@ public class SceneManager : MonoBehaviour
         float vertical = -Input.GetAxis("Vertical Stick-L");
         float radians = Mathf.Atan2(vertical, horizontal);
 
-        // ターゲットをプレイヤー周辺に移動させる
+        // ターゲットをself周辺に移動させる
         var selfPos = self.transform.position;
-        target.transform.position = selfPos + new Vector3(Mathf.Cos(radians), 0, Mathf.Sin(radians)) * 5;
+        if (inputForCamera)
+        {
+            // カメラの回転角度に入力方向を合わせる
+            float angleForCamera = radians * Mathf.Rad2Deg - Camera.main.transform.localEulerAngles.y;
+            float radiansForCamera = angleForCamera * Mathf.Deg2Rad;
+            target.transform.position = selfPos + new Vector3(Mathf.Cos(radiansForCamera), 0, Mathf.Sin(radiansForCamera)) * 5;
+        }
+        else
+        {
+            target.transform.position = selfPos + new Vector3(Mathf.Cos(radians), 0, Mathf.Sin(radians)) * 5;
+        }
     }
 }
