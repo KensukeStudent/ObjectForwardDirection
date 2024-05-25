@@ -13,6 +13,19 @@ public enum SearchType
     Input
 }
 
+public enum CameraType
+{
+    /// <summary>
+    /// 真上視点
+    /// </summary>
+    DirectlyAbove,
+
+    /// <summary>
+    /// 見下ろし方視点
+    /// </summary>
+    Overlooking
+}
+
 public class SceneManager : MonoBehaviour
 {
     // 位置座標
@@ -43,6 +56,24 @@ public class SceneManager : MonoBehaviour
 
     [Header("入力をカメラy軸回転を基準とするか"), SerializeField]
     private bool inputForCamera = false;
+
+    [Header("DirectlyAbove=真上視点/nOverlooking=見下ろし方視点"), SerializeField]
+    private CameraType cameraType = CameraType.DirectlyAbove;
+
+    private void OnValidate()
+    {
+        switch (cameraType)
+        {
+            case CameraType.DirectlyAbove:
+                Camera.main.transform.position = new Vector3(0, 10, 0);
+                Camera.main.transform.localRotation = Quaternion.Euler(90, 0, 0);
+                break;
+            case CameraType.Overlooking:
+                Camera.main.transform.position = new Vector3(0, 7.7f, -12.9f);
+                Camera.main.transform.localRotation = Quaternion.Euler(20, 0, 0);
+                break;
+        }
+    }
 
     // Update is called once per frame
     void Update()
