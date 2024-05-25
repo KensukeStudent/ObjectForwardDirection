@@ -9,7 +9,8 @@ using UnityEngine;
 public enum SearchType
 {
     Normal,
-    Forward
+    Forward,
+    Input
 }
 
 public class SceneManager : MonoBehaviour
@@ -43,9 +44,20 @@ public class SceneManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        SetMousePosition();
-        RotateSelf();
+        switch (searchType)
+        {
+            case SearchType.Normal:
+            case SearchType.Forward:
+                SetMousePosition();
+                break;
+
+            case SearchType.Input:
+                Stick();
+                break;
+        }
+
         CalcTargetDirection();
+        RotateSelf();
         SetText();
     }
 
@@ -111,5 +123,19 @@ public class SceneManager : MonoBehaviour
         else: Back");
 
         text.text = builder.ToString();
+    }
+
+    private void Stick()
+    {
+        // ※ Vertical Stick-LはinputManagerでinvert設定にしているため
+        // スティックを前方に倒せば、プラスの値
+        // スティックを後方に倒せば、マイナスの値になります
+        float horizontal = Input.GetAxis("Horizontal Stick-L");
+        float vertical = -Input.GetAxis("Vertical Stick-L");
+        float radians = Mathf.Atan2(vertical, horizontal);
+
+        // ターゲットをプレイヤー周辺に移動させる
+        var selfPos = self.transform.position;
+        target.transform.position = selfPos + new Vector3(Mathf.Cos(radians), 0, Mathf.Sin(radians)) * 5;
     }
 }

@@ -943,6 +943,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 774287670}
   self: {fileID: 850871324}
-  searchType: 1
+  searchType: 2
   text: {fileID: 168619431}
   isRotate: 0
