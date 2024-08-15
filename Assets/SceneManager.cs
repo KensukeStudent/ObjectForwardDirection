@@ -41,6 +41,9 @@ public class Settings
 
     [Header("索敵距離"), SerializeField]
     public float distance;
+
+    [Header("高さ"), SerializeField]
+    public float hight;
 }
 
 [RequireComponent(typeof(SceneView))]
@@ -127,7 +130,7 @@ public class SceneManager : MonoBehaviour
         position.z = 10;
         // マウス位置座標をスクリーン座標からワールド座標に変換する
         screenToWorldPointPosition = Camera.main.ScreenToWorldPoint(position);
-        screenToWorldPointPosition.y = 0;
+        screenToWorldPointPosition.y = settings.hight;
         // ワールド座標に変換されたマウス座標を代入
         target.transform.position = screenToWorldPointPosition;
     }

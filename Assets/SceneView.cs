@@ -44,6 +44,7 @@ public class SceneView : MonoBehaviour
 
     public void SetDistanceText(float distance, float limit)
     {
+        // angle範囲内のlimit距離まで索敵
         distanceText.text = $"distance of target: {distance} <= {limit}: " + (distance <= limit ? "inside" : "outside");
     }
 }
