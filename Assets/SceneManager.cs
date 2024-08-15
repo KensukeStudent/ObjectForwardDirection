@@ -2,8 +2,6 @@
 // reference: https://tsubakit1.hateblo.jp/entry/2018/02/05/235634
 // --------------------------------------------------------------------
 
-using System.Text;
-using TMPro;
 using UnityEngine;
 
 public enum SearchType
@@ -26,6 +24,26 @@ public enum CameraType
     Overlooking
 }
 
+[System.Serializable]
+public class Settings
+{
+    [Header("Normal,Forward=targetマウス移動\nInput=targetをスティック入力移動"), SerializeField]
+    public SearchType searchType;
+
+    [Header("selfを回転させる"), SerializeField]
+    public bool isRotate = false;
+
+    [Header("入力をカメラy軸回転を基準とするか"), SerializeField]
+    public bool inputForCamera = false;
+
+    [Header("DirectlyAbove=真上視点/nOverlooking=見下ろし方視点"), SerializeField]
+    public CameraType cameraType = CameraType.DirectlyAbove;
+
+    [Header("索敵距離"), SerializeField]
+    public float distance;
+}
+
+[RequireComponent(typeof(SceneView))]
 public class SceneManager : MonoBehaviour
 {
     // 位置座標
@@ -45,27 +63,32 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     private GameObject self = null;
 
-    [Header("Normal,Forward=targetマウス移動\nInput=targetをスティック入力移動"), SerializeField]
-    private SearchType searchType;
+    private SceneView view = null;
+
+    // Settings -------------------------------------------------------
 
     [SerializeField]
-    private TextMeshProUGUI text = null;
+    private Settings settings = null;
 
-    [Header("selfを回転させる"), SerializeField]
-    private bool isRotate = false;
+    private SearchType searchType => settings.searchType;
 
-    [Header("入力をカメラy軸回転を基準とするか"), SerializeField]
-    private bool inputForCamera = false;
+    private bool isRotate => settings.isRotate;
 
-    [Header("DirectlyAbove=真上視点/nOverlooking=見下ろし方視点"), SerializeField]
-    private CameraType cameraType = CameraType.DirectlyAbove;
+    private bool inputForCamera => settings.inputForCamera;
+
+    private CameraType cameraType => settings.cameraType;
+
+    private void Awake()
+    {
+        TryGetComponent(out view);
+    }
 
     private void OnValidate()
     {
         switch (cameraType)
         {
             case CameraType.DirectlyAbove:
-                Camera.main.transform.position = new Vector3(0, 10, 0);
+                Camera.main.transform.position = new Vector3(0, 15, 0);
                 Camera.main.transform.localRotation = Quaternion.Euler(90, 0, 0);
                 break;
             case CameraType.Overlooking:
@@ -92,7 +115,8 @@ public class SceneManager : MonoBehaviour
 
         CalcTargetDirection();
         RotateSelf();
-        SetText();
+        view.SetDirectionText(angle);
+        view.SetDistanceText(Vector3.Distance(target.transform.position, self.transform.position), settings.distance);
     }
 
     private void SetMousePosition()
@@ -125,38 +149,6 @@ public class SceneManager : MonoBehaviour
         {
             self.transform.Rotate(0, 30 * Time.deltaTime, 0);
         }
-    }
-
-    private void SetText()
-    {
-        StringBuilder builder = new StringBuilder();
-
-        if (angle >= -45 && angle < 45)
-        {
-            builder.Append("Forward");
-        }
-        else if (angle >= -135 && angle < -45)
-        {
-            builder.Append("Left");
-        }
-        else if (angle >= 45 && angle < 135)
-        {
-            builder.Append("Right");
-        }
-        else
-        {
-            builder.Append("Back");
-        }
-
-        builder.AppendLine();
-        builder.Append($@"Angle: {angle}");
-        builder.Append(@"
-        -45 - 45: Forward
-        -135 - 45: Left
-        45 - 135: Right
-        else: Back");
-
-        text.text = builder.ToString();
     }
 
     private void Stick()
